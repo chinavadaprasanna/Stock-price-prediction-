@@ -1,0 +1,57 @@
+import pandas as pd  ##import necessary libraries
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+sns.set_theme(style="whitegrid")
+plt.style.use('ggplot')
+
+
+import tensorflow as tf
+%load_ext tensorboard
+
+import warnings
+warnings.filterwarnings('ignore')
+
+import os
+import datetime as dt
+data = pd.read_csv('/data/input_data.csv')
+data['Date']=pd.to_datetime(data['Date']).dt.date
+data.set_index("Date",inplace=True)
+data.head()
+data.tail()
+output_dir_path = "/results/"
+df = data.copy()
+df['MA_50'] = df['Close'].rolling(50).mean()
+df['MA_200'] = df['Close'].rolling(200).mean()
+
+fig = plt.figure(figsize=(10,5))
+fig.set(facecolor = "white")
+plt.plot(df['Close'], 'mediumblue',label=['S&P 500 Close Price'], linewidth = 2.2)
+plt.plot(df['MA_50'],'red', label=['50-day MA'], linewidth = 2.2)
+plt.plot(df['MA_200'],'darkgreen', label=['200-day MA'], linewidth = 2.2)
+plt.legend(['S&P 500 Close Price', '50-day Moving Average', '200-day Moving Average'], loc='upper left')
+plt.title('')
+plt.xlabel('Time (years)')
+plt.ylabel('Close price')
+fig.savefig(output_dir_path+ "original_data_plus_moving_averages.png",dpi=600)
+plt.show()
+fig = plt.figure(figsize= (10,5))
+sns.heatmap(data.corr(), annot=True)
+sns.set_style("whitegrid")
+fig.savefig(output_dir_path+"correlation_heatmap.png",dpi=600)
+plt.show()
+
+data = data.iloc[:, 1:]
+fig = plt.figure(figsize= (10,5))
+sns.heatmap(data.corr(), annot=True)
+sns.set_style("whitegrid")
+fig.savefig(output_dir_path+"correlation_heatmap2.png",dpi=600)
+plt.show()
+fig = plt.figure(figsize = (20, 12))
+data.plot(subplots = True, figsize = (12,10),grid=False)
+sns.set_style("whitegrid")
+fig.savefig(output_dir_path+"timeseries.png",dpi=600)
+plt.show()
+data.describe()
